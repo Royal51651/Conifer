@@ -4,24 +4,35 @@
 
 <div class="blocker {announcer.visibility}"></div>
 <div class="announcer {announcer.visibility}">
-    <h1>{announcer.msg}</h1>
-    <button onclick={toggle_announcer}>Okay</button>
+    <span>
+        <h1>{announcer.msg}</h1>
+        <button onclick={toggle_announcer}>Okay</button>
+    </span>
+
 </div>
 
 <style>
+
+
     .announcer {
         position: fixed;
         top: 20vh;
         left: 20vw;
         width: 60vw;
         height: 60vh;
-        background-color: rgb(40, 91, 108);
+        background-color: var(--fira-color-dark);
         color: #fff;
         justify-content: center;
         align-items: center;
-        font-size: 20px;
+        font-size: min(2vh, 2vw);
         z-index: 100;
         border-radius: 5px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .announcer button {
+        font-size: min(3vh, 3vw);
     }
 
     .blocker {
@@ -34,6 +45,12 @@
         justify-content: center;
         align-items: center;
         z-index: 50;
+    }
+
+    span{
+        padding: 20px;
+        justify-content: center;
+        align-items: center;
     }
 
     .hidden {

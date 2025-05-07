@@ -1,51 +1,44 @@
-<!--
 <script>
 
 import pocket from '../pocketbase';
-import { togglePage } from "../store.svelte";
-
+import { store, announce_message } from "../store.svelte";
+import Announcer from '../announcer.svelte';
 let email = $state("");
 let password = $state("");
-let message = $state("Login To MicroChat!");
 
 async function authenticate() {
-    if(email == "free" && password == "free"){
-        togglePage("freechatWarning");
-    } else if(email != "" && password != ""){
+    if(email != "" && password != ""){
         try {
             const authData = await pocket.collection("users").authWithPassword(
                 email,
                 password,
             );
-            console.log(authData);
         
-            if(pocket.authStore.isValid){
-                togglePage("chat");
+            if(pocket.authStore.isValid && pocket.authStore.record.verified){
+                store.page = "chat";
+            } else if (!pocket.authStore.record.verified){
+                announce_message("Verify your Email first");
             } else {
-                message = "Login Failed";
+                announce_message("Invalid login credentials");
             }
 
         } catch {
-            message = "Login Failed";
+            announce_message("Server-Error. Try again later");
         }
     
     } else {
-        message = "Actually Type A Password This Time";
+        announce_message("Invalid login credentials");
     }
     
 }
 
-const toggleMessage = (input) => {
-    message = input;
-};
-
 </script>
 
-<h1>{message}</h1>
+<Announcer />
+
+<h1>Login to Fira</h1>
 
 <div class="logicBox">
-
-    {#if message == "Login To MicroChat!"}
 
     <input 
         type="text"
@@ -53,19 +46,14 @@ const toggleMessage = (input) => {
         bind:value={email}
     />
     <input 
-        type="text"
+        type="password"
         placeholder="Password"
         bind:value={password}
     />
 
     <button onclick={authenticate}>Submit</button>
-
-    {:else}
-
-    <button onclick={() => toggleMessage("Login To MicroChat!")}>Try Again</button>
-    <button onclick={() => togglePage("signup")}>Sign Up</button>
-    
-    {/if}
+    <button onclick={() => {
+        store.page="signup"
+    }}>Go to Sign-Up</button>
 
 </div>
--->

@@ -20,22 +20,23 @@ const randomColor = () => {
 
 async function signUp() {
     try {
-        if(passwordConfirm == password && email != "" && username != ""){
+        if(passwordConfirm == password && email != "" && username != "" && /^\S*$/.test(password) && password.length >= 4){
             let color = randomColor();
             const data = {
-                "password": password,
-                "passwordConfirm": passwordConfirm,
                 "email": email,
                 "emailVisibility": true,
-                "verified": false,
                 "username": username,
-                "color": color
+                "color": color,
+                "password": password,
+                "passwordConfirm": passwordConfirm
             };
             const newUser = await pocket.collection('users').create(data);
             if(newUser){
                 message = "Sign-Up Succesfull!";
             }
 
+        } else if (!/^\S*$/.test(password) || password.length < 4) {
+            announce_message("Password must be 4 characters or longer with no whitespace");
         } else {
             announce_message("Sign-up Failed. Try Again");
         }
@@ -72,12 +73,12 @@ async function signUp() {
         bind:value={email}
     />
     <input 
-        type="text"
+        type="password"
         placeholder="Password"
         bind:value={password}
     />
     <input 
-        type="text"
+        type="password"
         placeholder="Confirm Password"
         bind:value={passwordConfirm}
     />
@@ -85,4 +86,6 @@ async function signUp() {
     {/if}
 
 </div>
+
+
 

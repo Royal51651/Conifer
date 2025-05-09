@@ -7,7 +7,6 @@
     let message = $state("")
     let length = $derived(200 - message.length);
 
-
     async function logout(){
         pocket.authStore.clear();
         store.page = "login";
@@ -55,16 +54,44 @@
         const response = await pocket.collection("messages").getList(1, 25, {
             sort: '-created',
         });
-        messages = response.items;
+        let temp = response.items;
+        messages = [];
+        let last_username = "";
+        for(let i of temp){
+            if(i.Username == last_username){
+                let data = {
+                    "new": false,
+                    "body": i
+                }
+                messages.unshift(data);
+            } else {
+                let data = {
+                    "new": true,
+                    "body": i
+                }
+                messages.unshift(data);
+                last_username = i.Username;
+            }
+        }
+        messages.reverse();
         unsubscribe = await pocket
             .collection('messages')
             .subscribe("*", async ({ action, record }) => {
                 if(action === "create"){
-                    if(messages.length < 25){
-                        messages.unshift(record);
+                    if(record.Username == last_username){
+                        let data = {
+                            "new": true,
+                            "body": record
+                        }
+                        messages.unshift(data);
+                        messages[1].new = false;
                     } else {
-                        messages.unshift(record);
-                        messages.splice(25, 1);
+                        let data = {
+                            "new": true,
+                            "body": record
+                        }
+                        messages.unshift(data);
+                        last_username = record.Username;
                     }
                 }
             });
@@ -107,18 +134,19 @@
 
         {#each messages as message}
 
-        <div class="message">
-            <span>
-                <p1 class="username" style="color: {message.Color}">{message.Username}</p1>
-            </span>
-            <span style="overflow-wrap: anywhere;">
-                <p1 class="messageBody">{message.Body}</p1>
-            </span>
-            <span>
-                <p1 class="subText">{message.date.split(".")[0]}</p1>
-            </span>
-        </div>
-        
+            {#if message.new}
+                <div class="message">
+                    <span>
+                        <p1 class="username" style="color: {message.body.Color}">{message.body.Username}</p1>
+                        <p1 class="subText">{message.body.created.split(".")[0]}</p1>
+                    </span>
+                </div>
+
+            {/if}
+            <div class="message">
+                <p1 class="messageBody">{message.body.Body}</p1>
+            </div>
+            
         {/each}
 
     </div>
@@ -130,13 +158,15 @@
 
     .main {
         display: flex;
-        width: 100%;
-        height: 100%;
+        width: max(100vw, 100%);
+        height: max(100vh, 100%);
         flex-direction: column;
+        background-color: var(--grey-color-main);
     }
 
     .messageBar {
-        width: 100%;
+        width: 100vw;
+        max-width: 100vw;
         height: 10%;
         background-color: var(--fira-color-dark);
         justify-content: left;
@@ -144,13 +174,14 @@
         display: flex;
         color: #fff;
         min-height: 80px;
+        box-sizing: border-box;
         padding-left: 20px;
         padding-right: 20px;
         gap: 10px;
     }
 
     .messageBar input {
-        width: 80%;
+        width: 95%;
     }
 
     .messageBar span {
@@ -172,25 +203,36 @@
     .messageContainer {
         width: 100%;
         height: 100%;
-        align-items: center;
+        align-items: left;
         display: flex;
         flex-direction: column;
         gap: 5px;
     }
 
     .message {
-        max-width: 80%;
+        width: 90%;
+        max-width: 90%;
         display: flex;
         width: max-content;
         flex-direction: column;
-        justify-content: center;
-        border-radius: 8px;
-        border: 2px solid transparent;
-        padding: 1em;
+        align-items: left;
+        padding-left: 1em;
+        padding-right: 1em;
+        padding-top: .2em;
         font-weight: 500;
         font-family: inherit;
+        text-align: left;
         white-space: normal;
-        background-color: var(--grey-color-main);
+        gap: 10px;
+    }
+
+    .subText {
+        text-wrap: pretty;
+        float: left;
+    }
+
+    .message::hover {
+        background-color: var(--fira-color-dark);
     }
 
     .username {
@@ -209,9 +251,9 @@
     span {
         display: flex;
         align-items: left;
-        flex-direction: row;
         padding: 2px;
         font-family: inherit;
+        gap: 10px;
     }
 
     .warning {

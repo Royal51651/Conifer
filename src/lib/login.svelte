@@ -3,8 +3,8 @@
 import pocket from '../pocketbase';
 import { store, announce_message } from "../store.svelte";
 import Announcer from '../announcer.svelte';
-let email = $state("");
-let password = $state("");
+let email = $state("georgeeggers682@gmail.com");
+let password = $state("F1R@p@ss");
 
 async function authenticate() {
     if(email != "" && password != ""){

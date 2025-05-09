@@ -3,29 +3,33 @@
 import pocket from '../pocketbase';
 import { store, announce_message } from "../store.svelte";
 import Announcer from '../announcer.svelte';
-let email = $state("georgeeggers682@gmail.com");
-let password = $state("F1R@p@ss");
+import { ClientResponseError } from 'pocketbase';
+let email = $state("");
+let password = $state("");
 
 async function authenticate() {
     if(email != "" && password != ""){
         try {
-            const _authData = await pocket.collection("users").authWithPassword(
+            const response = await pocket.collection("users").authWithPassword(
                 email,
                 password,
             );
-            // ! VERY VERY IMPORTANT!!! REMOVE THE "|| true" ONCE EMAIL VERIFICATION IS WORKING
-            if(pocket.authStore.isValid && (pocket.authStore.record.verified || true)){
+            if(pocket.authStore.isValid){
                 store.page = "chat";
-            } else if (!pocket.authStore.record.verified){
-                announce_message("Verify your Email first");
             } else {
                 announce_message("Invalid login credentials");
             }
 
-        } catch {
-            announce_message("Server-Error. Try again later");
+        } catch (err) {
+            console.log(err);
+            if(err instanceof ClientResponseError){
+                if (err.status == 400){
+                    announce_message("Invalid login credentials");
+                } else if (err.status == 0){
+                    announce_message("Failed to connect to server at " + store.serverIP);
+                }
+            }
         }
-    
     } else {
         announce_message("Invalid login credentials");
     }
@@ -37,6 +41,7 @@ async function authenticate() {
 <Announcer />
 
 <h1>Login to Fira</h1>
+<p1>Current server set to {store.serverIP}</p1>
 
 <div class="logicBox">
 

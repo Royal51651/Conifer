@@ -3,6 +3,7 @@
 import pocket from '../pocketbase';
 import { store, announce_message } from "../store.svelte";
 import Announcer from '../announcer.svelte';
+import { ClientResponseError } from 'pocketbase';
 
 let passwordConfirm = $state("");
 let username = $state("");
@@ -41,8 +42,14 @@ async function signUp() {
             announce_message("Sign-up Failed. Try Again");
         }
     } catch (err) {
-        console.log("Error!", err);
-        message = "Server-Error. Try Another Email";
+        console.log(err);
+        if(err instanceof ClientResponseError){
+            if (err.status == 400){
+                announce_message("Invalid login credentials");
+            } else if (err.status == 0){
+                announce_message("Failed to connect to server at " + store.serverIP);
+            }
+        }
     }
 }
 </script>
@@ -50,6 +57,7 @@ async function signUp() {
 <Announcer />
 
 <h1>{message}</h1>
+<p1>Current server set to {store.serverIP}</p1>
 
 <div class="logicBox">
     {#if message== "Sign-Up Succesfull!"}

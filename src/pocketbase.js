@@ -5,5 +5,10 @@ import { store } from './store.svelte';
 let pocket = new PocketBase("http://" + store.serverIP);
 export default pocket;
 export const refresh_pocket = () => {
-    pocket = new PocketBase(store.serverIP);
+    try {
+        pocket = new PocketBase(store.serverIP);
+    } catch (err) {
+        console.log("Error " + err + " logged in pocket.js");
+    }
+    
 }

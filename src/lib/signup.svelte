@@ -36,8 +36,8 @@ async function signUp() {
                 message = "Sign-Up Succesfull!";
             }
 
-        } else if (!/^\S*$/.test(password) || password.length < 4) {
-            announce_message("Password must be 4 characters or longer with no whitespace");
+        } else if (!/^\S*$/.test(password) || password.length < 8) {
+            announce_message("Password must be 8 characters or longer with no whitespace");
         } else {
             announce_message("Sign-up Failed. Try Again");
         }
@@ -57,9 +57,16 @@ async function signUp() {
 <Announcer />
 
 <h1>{message}</h1>
-<p1>Current server set to {store.serverIP}</p1>
 
 <div class="logicBox">
+
+    <span>
+        <div class="divWrapper">
+            <p1>Current server set to {store.serverIP}</p1>
+        </div>
+        <button onclick={() => announce_message("Add server switching later")}>Change</button>
+    </span>
+
     {#if message== "Sign-Up Succesfull!"}
 
     <button onclick={() => {
@@ -94,6 +101,15 @@ async function signUp() {
     {/if}
 
 </div>
-
+<style>
+    span {
+        display: flex;
+        flex-direction: row;
+        box-sizing: border-box;
+        justify-content: space-between;
+        width: 100%;
+        gap: 10px;
+    }
+</style>
 
 

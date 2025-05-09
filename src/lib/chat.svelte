@@ -57,6 +57,9 @@
         let temp = response.items;
         messages = [];
         let last_username = "";
+        // this parses the 25 most recent messages and groups based on user
+        // consecutive messages by the same user get the new: false attribute
+        // in addition, new messages will spawn a spacer above
         for(let i of temp){
             if(i.Username == last_username){
                 let data = {
@@ -106,61 +109,53 @@
 
 <Announcer />
 
-<div class="main">
-
-    <div class="messageBar">
-        <input
-            onkeydown={(e) => e.key === "Enter" && send()}
-            type="text"
-            placeholder="Message"
-            bind:value={message}
-        >
-        {#if length > 15}
-        <span>
-            <p1>{length}</p1>
-        </span>
-        {:else if length >= 0}
-        <span>
-            <p1 class="warning">{length}</p1>
-        </span>
-        {:else}
-        <span>
-            <p1 class="error">{length}</p1>
-        </span>
-        {/if}
-    </div>
-
-    <div class="messageContainer">
-
-        {#each messages as message}
-
-            {#if message.new}
-                <div class="message">
-                    <span>
-                        <p1 class="username" style="color: {message.body.Color}">{message.body.Username}</p1>
-                        <p1 class="subText">{message.body.created.split(".")[0]}</p1>
-                    </span>
-                </div>
-
-            {/if}
-            <div class="message">
-                <p1 class="messageBody">{message.body.Body}</p1>
-            </div>
-            
-        {/each}
-
-    </div>
+<div class="messageBar">
+    <input
+        onkeydown={(e) => e.key === "Enter" && send()}
+        type="text"
+        placeholder="Message"
+        bind:value={message}
+    >
+    {#if length > 15}
+    <span>
+        <p1>{length}</p1>
+    </span>
+    {:else if length >= 0}
+    <span>
+        <p1 class="warning">{length}</p1>
+    </span>
+    {:else}
+    <span>
+        <p1 class="error">{length}</p1>
+    </span>
+    {/if}
 </div>
 
+<div class="messageContainer">
+
+    {#each messages as message}
+
+        {#if message.new}
+            <div class="message">
+                <span>
+                    <p1 class="username" style="color: {message.body.Color}">{message.body.Username}</p1>
+                    <p1 class="subText">{message.body.created.split(".")[0]}</p1>
+                </span>
+            </div>
+
+        {/if}
+        <div class="message">
+            <p1 class="messageBody">{message.body.Body}</p1>
+        </div>
+        
+    {/each}
+
+</div>
 
 
 <style>
 
-    .main {
-        display: flex;
-        width: max(100vw, 100%);
-        height: max(100vh, 100%);
-        flex-direction: column;
+    :root {
         background-color: var(--grey-color-main);
     }
 

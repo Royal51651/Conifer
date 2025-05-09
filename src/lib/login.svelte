@@ -41,15 +41,21 @@ async function authenticate() {
 <Announcer />
 
 <h1>Login to Fira</h1>
-<p1>Current server set to {store.serverIP}</p1>
 
 <div class="logicBox">
+    <span>
+        <div class="divWrapper">
+            <p1>Current server set to {store.serverIP}</p1>
+        </div>
+        <button onclick={() => announce_message("Add server switching later")}>Change</button>
+    </span>
 
     <input 
         type="text"
         placeholder="Email"
         bind:value={email}
     />
+
     <input 
         type="password"
         placeholder="Password"
@@ -62,3 +68,14 @@ async function authenticate() {
     }}>Go to Sign-Up</button>
 
 </div>
+
+<style>
+    span {
+        display: flex;
+        flex-direction: row;
+        box-sizing: border-box;
+        justify-content: space-between;
+        width: 100%;
+        gap: 10px;
+    }
+</style>

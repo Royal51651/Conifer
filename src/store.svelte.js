@@ -1,7 +1,9 @@
+
+
 export const store = $state(
     {
         page: "login",
-        serverIP: "127.0.0.1:8090"
+        serverIP: "10.113.20.227:8090"
     }
 );
 export const announcer = $state({

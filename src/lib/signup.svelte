@@ -1,15 +1,17 @@
 <script>
 
-import pocket from '../pocketbase';
-import { store, announce_message } from "../store.svelte";
-import Announcer from '../announcer.svelte';
+import pocket from './pocketbase';
+import { announce_message, ip } from "./store.svelte";
+import Announcer from './reusable/announcer.svelte';
+import IpControlBar from './reusable/ip-control-bar.svelte';
 import { ClientResponseError } from 'pocketbase';
+import { push } from 'svelte-spa-router';
 
 let passwordConfirm = $state("");
 let username = $state("");
 let email = $state("");
 let password = $state("");
-let message = $state("Create Account!");
+let message = $state("Create profile for");
 
 const randomColor = () => {
     let color = "";
@@ -33,7 +35,7 @@ async function signUp() {
             };
             const newUser = await pocket.collection('users').create(data);
             if(newUser){
-                message = "Sign-Up Succesfull!";
+                message = "Profile created for ";
             }
 
         } else if (!/^\S*$/.test(password) || password.length < 8) {
@@ -47,7 +49,7 @@ async function signUp() {
             if (err.status == 400){
                 announce_message("Invalid login credentials");
             } else if (err.status == 0){
-                announce_message("Failed to connect to server at " + store.serverIP);
+                announce_message("Failed to connect to server at " + ip.ip + ":" + ip.port);
             }
         }
     }
@@ -56,26 +58,24 @@ async function signUp() {
 
 <Announcer />
 
-<h1>{message}</h1>
+<span>
+    <h1>{message}</h1>
+    <h1 style="color: var(--fira-color-lightest">&nbsp;{ip.ip + ":" + ip.port}</h1>
+</span>
 
 <div class="logicBox">
 
-    <span>
-        <div class="divWrapper">
-            <p1>Current server set to {store.serverIP}</p1>
-        </div>
-        <button onclick={() => announce_message("Add server switching later")}>Change</button>
-    </span>
-
-    {#if message== "Sign-Up Succesfull!"}
+    {#if message== "Profile created for "}
 
     <button onclick={() => {
-        store.page = "login"
+        push('/')
     }}>
         Go To Login
     </button>
 
     {:else}
+
+    <IpControlBar />
 
     <input 
     type="text"
@@ -101,15 +101,12 @@ async function signUp() {
     {/if}
 
 </div>
-<style>
-    span {
-        display: flex;
-        flex-direction: row;
-        box-sizing: border-box;
-        justify-content: space-between;
-        width: 100%;
-        gap: 10px;
-    }
-</style>
 
+<style>
+span {
+    display: flex;
+    flex-direction: row;
+}
+
+</style>
 

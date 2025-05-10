@@ -1,15 +1,16 @@
 <script lang="ts">
-    import pocket from '../pocketbase';
+    import pocket from './pocketbase';
     import { onMount, onDestroy } from "svelte"
-    import { announce_message, store } from "../store.svelte";
-    import Announcer from '../announcer.svelte';
+    import { announce_message } from "./store.svelte";
+    import Announcer from './reusable/announcer.svelte';
+    import { push } from 'svelte-spa-router';
 
     let message = $state("")
     let length = $derived(200 - message.length);
 
     async function logout(){
         pocket.authStore.clear();
-        store.page = "login";
+        push('/');
     }
 
     let messages = $state([]);
@@ -60,23 +61,29 @@
         // this parses the 25 most recent messages and groups based on user
         // consecutive messages by the same user get the new: false attribute
         // in addition, new messages will spawn a spacer above
-        for(let i of temp){
-            if(i.Username == last_username){
-                let data = {
-                    "new": false,
-                    "body": i
+        try {
+            for(let i of temp){
+                if(i.Username == last_username){
+                    let data = {
+                        "new": false,
+                        "body": i,
+                    }
+                    messages.unshift(data);
+                } else {
+                    let data = {
+                        "new": true,
+                        "body": i,
+                    }
+                    messages.unshift(data);
+                    last_username = i.Username;
                 }
-                messages.unshift(data);
-            } else {
-                let data = {
-                    "new": true,
-                    "body": i
-                }
-                messages.unshift(data);
-                last_username = i.Username;
             }
+            messages.reverse();
+            last_username = messages[0].body.Username;
+        } catch {
+            console.log("No messages")
         }
-        messages.reverse();
+
         unsubscribe = await pocket
             .collection('messages')
             .subscribe("*", async ({ action, record }) => {
@@ -95,6 +102,17 @@
                         }
                         messages.unshift(data);
                         last_username = record.Username;
+                    }
+                } else if (action === "delete") {
+                    let index = 0;
+                    for(let i of messages){
+                        if(i.data == record){
+                            if(messages[i].new){
+                                messages[i + 1].new = true;
+                            }
+                            messages.splice(i, 1);
+                        }
+                        index++;
                     }
                 }
             });
@@ -217,6 +235,7 @@
         font-weight: 500;
         font-family: inherit;
         text-align: left;
+        word-wrap: anywhere;
         white-space: normal;
         gap: 10px;
     }
@@ -247,6 +266,7 @@
         display: flex;
         align-items: left;
         padding: 2px;
+
         font-family: inherit;
         gap: 10px;
     }

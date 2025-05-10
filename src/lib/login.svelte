@@ -1,9 +1,14 @@
 <script>
 
-import pocket from '../pocketbase';
-import { store, announce_message } from "../store.svelte";
-import Announcer from '../announcer.svelte';
+import pocket from './pocketbase';
+import { announce_message, toggle_ip, ip } from "./store.svelte";
+import IpControlBar from './reusable/ip-control-bar.svelte';
+
+import Announcer from './reusable/announcer.svelte';
 import { ClientResponseError } from 'pocketbase';
+import { push } from 'svelte-spa-router';
+
+
 let email = $state("");
 let password = $state("");
 
@@ -15,7 +20,7 @@ async function authenticate() {
                 password,
             );
             if(pocket.authStore.isValid){
-                store.page = "chat";
+                push('/chat')
             } else {
                 announce_message("Invalid login credentials");
             }
@@ -26,7 +31,7 @@ async function authenticate() {
                 if (err.status == 400){
                     announce_message("Invalid login credentials");
                 } else if (err.status == 0){
-                    announce_message("Failed to connect to server at " + store.serverIP);
+                    announce_message("Failed to connect to server at " + ip.ip + ":" + ip.port);
                 }
             }
         }
@@ -38,17 +43,16 @@ async function authenticate() {
 
 </script>
 
+
 <Announcer />
 
-<h1>Login to Fira</h1>
+<span>
+    <h1>Login to </h1>
+    <h1 style="color: var(--fira-color-lightest">&nbsp;{ip.ip + ":" + ip.port}</h1>
+</span>
 
 <div class="logicBox">
-    <span>
-        <div class="divWrapper">
-            <p1>Current server set to {store.serverIP}</p1>
-        </div>
-        <button onclick={() => announce_message("Add server switching later")}>Change</button>
-    </span>
+    <IpControlBar />
 
     <input 
         type="text"
@@ -64,7 +68,7 @@ async function authenticate() {
 
     <button onclick={authenticate}>Submit</button>
     <button onclick={() => {
-        store.page="signup"
+        push("/signup")
     }}>Go to Sign-Up</button>
 
 </div>
@@ -73,9 +77,5 @@ async function authenticate() {
     span {
         display: flex;
         flex-direction: row;
-        box-sizing: border-box;
-        justify-content: space-between;
-        width: 100%;
-        gap: 10px;
     }
 </style>

@@ -1,5 +1,5 @@
 <script>
-    import { announcer, toggle_announcer } from "./store.svelte"
+    import { announcer, toggle_announcer } from "../store.svelte"
 </script>
 
 <div class="blocker {announcer.visibility}"></div>

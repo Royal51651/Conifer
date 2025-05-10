@@ -11,7 +11,7 @@ let passwordConfirm = $state("");
 let username = $state("");
 let email = $state("");
 let password = $state("");
-let message = $state("Create profile for");
+let message = $state("Signup for");
 
 const randomColor = () => {
     let color = "";
@@ -38,16 +38,22 @@ async function signUp() {
                 message = "Profile created for ";
             }
 
+        } else if (email == "" || username == "" || password == "" || passwordConfirm == "") {
+            announce_message("Fill out all fields");
+        } else if (!/^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$/.test(email)) {
+            announce_message("Invalid E-Mail. Try again");
         } else if (!/^\S*$/.test(password) || password.length < 8) {
             announce_message("Password must be 8 characters or longer with no whitespace");
+        } else if (password != passwordConfirm) {
+            announce_message("Passwords do not match");
         } else {
-            announce_message("Sign-up Failed. Try Again");
+            announce_message("Sign-up Failed. Try again");
         }
     } catch (err) {
         console.log(err);
         if(err instanceof ClientResponseError){
             if (err.status == 400){
-                announce_message("Invalid login credentials");
+                announce_message("Invalid signup credentials");
             } else if (err.status == 0){
                 announce_message("Failed to connect to server at " + ip.ip + ":" + ip.port);
             }
@@ -58,13 +64,21 @@ async function signUp() {
 
 <Announcer />
 
-<span>
-    <h1>{message}
-        <span style="color: var(--conifer-color-lightest">
-            &nbsp;{ip.ip + ":" + ip.port}
-        </span>
+<div class="header">
+    <span>
+        <a href="https://github.com/Royal51651/Conifer">
+            <img src="src\assets\conifer-logo-nobg-512.png" alt="Conifer Logo" class="logo1"> 
+        </a>
+        <h1>
+            {message}
+        </h1>
+    </span>
+    
+    <h1 style="color: var(--conifer-color-lightest);">
+        &nbsp;{ip.ip + ":" + ip.port}
     </h1>
-</span>
+</div>
+    
 
 <div class="logicBox">
 
@@ -110,11 +124,32 @@ async function signUp() {
         display: flex;
         flex-direction: row;
         word-wrap: break-word;
+        width: 100%;
+        justify-content: center;
+        align-items: center;
+        box-sizing: border-box;
+    }
+
+    .header {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
     }
 
     h1 {
         display: flex;
-        word-wrap: break-word;
+        word-wrap: normal;
+    }
+
+    @media only screen and (max-width: 1200px) {
+        .header {
+            flex-direction: column;
+        }
+        span {
+            justify-content: left;
+            align-items: left;
+        }
     }
 </style>
 

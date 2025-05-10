@@ -48,13 +48,24 @@ async function authenticate() {
 
 <Announcer />
 
-<span>
-    <h1>Login to 
-        <span style="color: var(--conifer-color-lightest">
-            &nbsp;{ip.ip + ":" + ip.port}
-        </span>
+
+
+
+<div class="header">
+    <span>
+        <a href="https://github.com/Royal51651/Conifer">
+            <img src="src\assets\conifer-logo-nobg-512.png" alt="Conifer Logo" class="logo1"> 
+        </a>
+        <h1>
+            Login to 
+        </h1>
+    </span>
+    
+    <h1 style="color: var(--conifer-color-lightest);">
+        &nbsp;{ip.ip + ":" + ip.port}
     </h1>
-</span>
+</div>
+    
 
 <div class="logicBox">
     <IpControlBar />
@@ -83,10 +94,31 @@ async function authenticate() {
         display: flex;
         flex-direction: row;
         word-wrap: break-word;
+        width: 100%;
+        justify-content: center;
+        align-items: center;
+        box-sizing: border-box;
+    }
+
+    .header {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
     }
 
     h1 {
         display: flex;
-        word-wrap: break-word;
+        word-wrap: normal;
+    }
+
+    @media only screen and (max-width: 1200px) {
+        .header {
+            flex-direction: column;
+        }
+        span {
+            justify-content: left;
+            align-items: left;
+        }
     }
 </style>

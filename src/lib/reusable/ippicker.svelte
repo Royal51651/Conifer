@@ -1,7 +1,7 @@
 <script>
     import { toggle_ip, ip } from "../store.svelte";
     import { getCookie, setCookie, deleteCookie} from "svelte-cookie";
-
+    import { refresh_pocket } from "../pocketbase.svelte";
     let msg = $state("Save");
     let ip_list = $state(getCookie("saved") || '');
     let addresses = $derived(ip_list.split(',').filter(e => e !== "" && e !== null));
@@ -29,8 +29,14 @@
         let total = address.split(":");
         ip.ip = total[0];
         ip.port = total[1];
+        refresh_pocket();
     }
     
+    const deleteData = () => {
+        deleteCookie("saved");
+        ip_list = "";
+    }
+
 </script>
 
 <div class="blocker {ip.visibility}"></div>
@@ -68,6 +74,7 @@
                             <button onclick={() => setAddy(addy)} class="dropButton">{addy}</button>
                         {/if}
                     {/each}
+                    <button onclick={deleteData}>Delete saved addresses</button>
                 </div>
             {/if}
         </div>
@@ -75,7 +82,7 @@
     </span>
 
     <span style="width: 100%;">
-        <button onclick={toggle_ip}>Done</button>
+        <button onclick={() => { refresh_pocket(); toggle_ip(); }}>Done</button>
     </span>
     
     

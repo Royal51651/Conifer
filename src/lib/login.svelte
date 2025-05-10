@@ -1,6 +1,6 @@
 <script>
 
-import pocket from './pocketbase';
+import pocket from './pocketbase.svelte';
 import { announce_message, toggle_ip, ip } from "./store.svelte";
 import IpControlBar from './reusable/ip-control-bar.svelte';
 
@@ -15,11 +15,13 @@ let password = $state("");
 async function authenticate() {
     if(email != "" && password != ""){
         try {
-            const response = await pocket.collection("users").authWithPassword(
+            console.log("at login");
+            console.log(pocket);
+            const response = await pocket.pocket.collection("users").authWithPassword(
                 email,
                 password,
             );
-            if(pocket.authStore.isValid){
+            if(pocket.pocket.authStore.isValid){
                 push('/chat')
             } else {
                 announce_message("Invalid login credentials");
@@ -47,8 +49,11 @@ async function authenticate() {
 <Announcer />
 
 <span>
-    <h1>Login to </h1>
-    <h1 style="color: var(--fira-color-lightest">&nbsp;{ip.ip + ":" + ip.port}</h1>
+    <h1>Login to 
+        <span style="color: var(--fira-color-lightest">
+            &nbsp;{ip.ip + ":" + ip.port}
+        </span>
+    </h1>
 </span>
 
 <div class="logicBox">
@@ -77,5 +82,11 @@ async function authenticate() {
     span {
         display: flex;
         flex-direction: row;
+        word-wrap: break-word;
+    }
+
+    h1 {
+        display: flex;
+        word-wrap: break-word;
     }
 </style>

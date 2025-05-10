@@ -1,15 +1,16 @@
 <script lang="ts">
-    import pocket from './pocketbase';
+    import pocket from './pocketbase.svelte';
     import { onMount, onDestroy } from "svelte"
     import { announce_message } from "./store.svelte";
     import Announcer from './reusable/announcer.svelte';
     import { push } from 'svelte-spa-router';
+    import pocket_container from './pocketbase.svelte';
 
     let message = $state("")
     let length = $derived(200 - message.length);
 
     async function logout(){
-        pocket.authStore.clear();
+        pocket.pocket.authStore.clear();
         push('/');
     }
 
@@ -31,7 +32,7 @@
 
     async function send(){;
         if(message != "" && length >= 0){
-            const user = await pocket.collection('users').getOne(pocket.authStore.record.id, {
+            const user = await pocket.pocket.collection('users').getOne(pocket.pocket.authStore.record.id, {
                 expand: 'username,color',
             });
             let messageColor = parseColor(user.color);
@@ -40,7 +41,7 @@
                 "Username": user.username,
                 "Color": messageColor
             };
-            const response = await pocket.collection('messages').create(data);
+            const response = await pocket.pocket.collection('messages').create(data);
             if(response){
                 message = "";
             }
@@ -52,7 +53,7 @@
     // subscribe to the thingy so it works better
     let unsubscribe: () => void;
     onMount(async () => {
-        const response = await pocket.collection("messages").getList(1, 25, {
+        const response = await pocket.pocket.collection("messages").getList(1, 25, {
             sort: '-created',
         });
         let temp = response.items;
@@ -84,7 +85,7 @@
             console.log("No messages")
         }
 
-        unsubscribe = await pocket
+        unsubscribe = await pocket.pocket
             .collection('messages')
             .subscribe("*", async ({ action, record }) => {
                 if(action === "create"){

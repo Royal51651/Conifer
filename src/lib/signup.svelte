@@ -1,6 +1,6 @@
 <script>
 
-import pocket from './pocketbase';
+import pocket from './pocketbase.svelte';
 import { announce_message, ip } from "./store.svelte";
 import Announcer from './reusable/announcer.svelte';
 import IpControlBar from './reusable/ip-control-bar.svelte';
@@ -33,7 +33,7 @@ async function signUp() {
                 "password": password,
                 "passwordConfirm": passwordConfirm
             };
-            const newUser = await pocket.collection('users').create(data);
+            const newUser = await pocket.pocket.collection('users').create(data);
             if(newUser){
                 message = "Profile created for ";
             }
@@ -59,8 +59,11 @@ async function signUp() {
 <Announcer />
 
 <span>
-    <h1>{message}</h1>
-    <h1 style="color: var(--fira-color-lightest">&nbsp;{ip.ip + ":" + ip.port}</h1>
+    <h1>{message}
+        <span style="color: var(--fira-color-lightest">
+            &nbsp;{ip.ip + ":" + ip.port}
+        </span>
+    </h1>
 </span>
 
 <div class="logicBox">
@@ -103,10 +106,15 @@ async function signUp() {
 </div>
 
 <style>
-span {
-    display: flex;
-    flex-direction: row;
-}
+    span {
+        display: flex;
+        flex-direction: row;
+        word-wrap: break-word;
+    }
 
+    h1 {
+        display: flex;
+        word-wrap: break-word;
+    }
 </style>
 

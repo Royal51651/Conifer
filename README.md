@@ -1,1 +1,6 @@
-# Fira
+# Fira - Take free speech into your own hands
+There's a reason why the Ammendment protecting freedom of speech is the very first Ammendment to the U.S. Constitution. It's because freedom of speech should be an inalienable and intangible right to everyone, everywhere. In the modern age, cases of digital censorship are becoming more and more prevalent; massive tech coorperations censoring their users based on their own political beliefs. Fira seeks to address this.
+# But, how?
+Instead of using one centralized server, Fira is compltely self-hosted. This means that users are capabale of completely configuring every aspect of the content they consume through Fira. Instead of some proprietary algorithm kept under lock and key, Fira takes a unique approach. All posts made to a specific server are put under a central message stream. From there, the user is compltely free to choose the content they want to see.
+# How do I set up a server?
+Normally, setting up a backend server of this nature would be a tedious process. However, Fira provides a simple [setup script](https://github.com/Royal51651/Fira-Server-Util) that makes it dead simple to get up and running. This is all possible thanks to the Pocketbase project, allowing servers to be run on virtually any computer.

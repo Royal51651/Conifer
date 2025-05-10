@@ -8,7 +8,7 @@
 <span>
     <div class="divWrapper">
         <p1>Current server set to </p1>
-        <p1 style="color: var(--fira-color-lightest);">{ip.ip}:{ip.port}</p1>
+        <p1 style="color: var(--conifer-color-lightest);">{ip.ip}:{ip.port}</p1>
     </div>
     <button onclick={toggle_ip}>Change</button>
 </span>

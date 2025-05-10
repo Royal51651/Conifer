@@ -20,7 +20,7 @@
         left: 20vw;
         width: 60vw;
         height: 60vh;
-        background-color: var(--fira-color-dark);
+        background-color: var(--conifer-color-dark);
         color: #fff;
         justify-content: center;
         align-items: center;

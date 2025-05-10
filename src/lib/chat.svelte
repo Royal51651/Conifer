@@ -182,7 +182,7 @@
         width: 100vw;
         max-width: 100vw;
         height: 10%;
-        background-color: var(--fira-color-dark);
+        background-color: var(--conifer-color-dark);
         justify-content: left;
         align-items: center;
         display: flex;
@@ -247,7 +247,7 @@
     }
 
     .message::hover {
-        background-color: var(--fira-color-dark);
+        background-color: var(--conifer-color-dark);
     }
 
     .username {

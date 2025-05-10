@@ -60,7 +60,7 @@ async function signUp() {
 
 <span>
     <h1>{message}
-        <span style="color: var(--fira-color-lightest">
+        <span style="color: var(--conifer-color-lightest">
             &nbsp;{ip.ip + ":" + ip.port}
         </span>
     </h1>

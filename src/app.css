@@ -1,10 +1,10 @@
 :root {
     font-family: Poppins, Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-    --fira-color-darkest: #00221a;
-    --fira-color-dark: #004131;
-    --fira-color: #006e55;
-    --fira-color-light: #008f6d;
-    --fira-color-lightest: #00a780;
+    --conifer-color-darkest: #00221a;
+    --conifer-color-dark: #004131;
+    --conifer-color: #006e55;
+    --conifer-color-light: #008f6d;
+    --conifer-color-lightest: #00a780;
     --grey-color-main: #1a1a1a;
     --grey-color-light: #2f2f2f;
     line-height: 1.5;
@@ -44,7 +44,7 @@ body {
 
 input[type=text], input[type=password] {
     border-radius: 8px;
-    border: 1px solid var(--fira-color);
+    border: 1px solid var(--conifer-color);
     padding: 0.6em 1.2em;
     font-size: min(2vh, 2vw);
     font-weight: 500;
@@ -58,7 +58,7 @@ input[type=text], input[type=password] {
 
 .divWrapper {
     border-radius: 8px;
-    border: 1px solid var(--fira-color);
+    border: 1px solid var(--conifer-color);
     padding: 0.6em 1.2em;
     font-size: min(2vh, 2vw);
     font-weight: 500;
@@ -91,7 +91,7 @@ h1 {
 
 button {
     border-radius: 8px;
-    border: 1px solid var(--fira-color);
+    border: 1px solid var(--conifer-color);
     padding: 0.6em 1.2em;
     font-size: min(2vh, 2vw);
     font-weight: 500;
@@ -144,7 +144,7 @@ button:focus-visible {
     display: none;
     flex-direction: column;
     position: absolute;
-    background-color: var(--fira-color-dark);
+    background-color: var(--conifer-color-dark);
     padding: 0.6em;
     border: 2px solid transparent;
     border-radius: 8px;

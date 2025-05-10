@@ -50,7 +50,7 @@ async function authenticate() {
 
 <span>
     <h1>Login to 
-        <span style="color: var(--fira-color-lightest">
+        <span style="color: var(--conifer-color-lightest">
             &nbsp;{ip.ip + ":" + ip.port}
         </span>
     </h1>

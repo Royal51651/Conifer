@@ -1,7 +1,7 @@
 <script>
 
 import pocket from './pocketbase.svelte';
-import { announce_message, toggle_ip, ip } from "./store.svelte";
+import { announce_message, ip } from "./store.svelte";
 import IpControlBar from './reusable/ip-control-bar.svelte';
 
 import Announcer from './reusable/announcer.svelte';
@@ -15,8 +15,6 @@ let password = $state("");
 async function authenticate() {
     if(email != "" && password != ""){
         try {
-            console.log("at login");
-            console.log(pocket);
             const response = await pocket.pocket.collection("users").authWithPassword(
                 email,
                 password,

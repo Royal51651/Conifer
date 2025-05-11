@@ -4,10 +4,10 @@
     import { announce_message } from "./store.svelte";
     import Announcer from './reusable/announcer.svelte';
     import { push } from 'svelte-spa-router';
-    import pocket_container from './pocketbase.svelte';
 
     let message = $state("")
     let length = $derived(200 - message.length);
+    let user_avatar = $state("");
 
     async function logout(){
         pocket.pocket.authStore.clear();
@@ -50,9 +50,15 @@
         }
     }
 
+    const get_user_avatar = () => {
+        const url = pocket.pocket.files.getURL(pocket.pocket.authStore.record, pocket.pocket.authStore.record.avatar, {'thumb':'128x128'});
+        return url
+    }
+
     // subscribe to the thingy so it works better
     let unsubscribe: () => void;
     onMount(async () => {
+        user_avatar = get_user_avatar();
         const response = await pocket.pocket.collection("messages").getList(1, 25, {
             sort: '-created',
         });
@@ -89,6 +95,7 @@
             .collection('messages')
             .subscribe("*", async ({ action, record }) => {
                 if(action === "create"){
+                    console.log(get_user_avatar());
                     if(record.Username == last_username){
                         let data = {
                             "new": true,
@@ -124,52 +131,74 @@
         unsubscribe?.();
     });
 
+
 </script>
 
 <Announcer />
 
-<div class="messageBar">
-    <input
-        onkeydown={(e) => e.key === "Enter" && send()}
-        type="text"
-        placeholder="Message"
-        bind:value={message}
-    >
-    {#if length > 15}
-    <span>
-        <p1>{length}</p1>
-    </span>
-    {:else if length >= 0}
-    <span>
-        <p1 class="warning">{length}</p1>
-    </span>
-    {:else}
-    <span>
-        <p1 class="error">{length}</p1>
-    </span>
-    {/if}
-</div>
+<div class="container">
+    <!-- sidebar -->
+    <div class="verticalGroup controlBar" style="width: 20%;">
 
-<div class="messageContainer">
-
-    {#each messages as message}
-
-        {#if message.new}
-            <div class="message">
-                <span>
-                    <p1 class="username" style="color: {message.body.Color}">{message.body.Username}</p1>
-                    <p1 class="subText">{message.body.created.split(".")[0]}</p1>
-                </span>
-            </div>
-
-        {/if}
-        <div class="message">
-            <p1 class="messageBody">{message.body.Body}</p1>
+        <div class="userDisplay">
+            <img src="{user_avatar}" alt="Avatar">
         </div>
-        
-    {/each}
 
+
+    </div>
+
+
+
+    <div class="verticalGroup" style="width: 80%;">
+        <div class="messageBar">
+            <input
+                onkeydown={(e) => e.key === "Enter" && send()}
+                type="text"
+                placeholder="Message"
+                bind:value={message}
+            >
+            {#if length > 15}
+            <span>
+                <p1>{length}</p1>
+            </span>
+            {:else if length >= 0}
+            <span>
+                <p1 class="warning">{length}</p1>
+            </span>
+            {:else}
+            <span>
+                <p1 class="error">{length}</p1>
+            </span>
+            {/if}
+        </div>
+
+        <div class="messageContainer">
+
+            {#each messages as message}
+
+                {#if message.new}
+                    <div class="message">
+                        <span>
+                            <p1 class="username" style="color: {message.body.Color}">{message.body.Username}</p1>
+                            <p1 class="subText">{message.body.created.split(".")[0]}</p1>
+                        </span>
+                    </div>
+
+                {/if}
+                <div class="message">
+                    <p1 class="messageBody">{message.body.Body}</p1>
+                </div>
+                
+            {/each}
+
+        </div>
+    </div>
+
+        
 </div>
+
+
+
 
 
 <style>
@@ -178,9 +207,45 @@
         background-color: var(--grey-color-main);
     }
 
+    .container {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+    }
+
+    .userDisplay {
+        padding: 1em;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+        background-color: var(--conifer-color-darkest);
+        font-size: min(2vw, 2vh);
+    }
+
+    .userDisplay img {
+        width: min(128px, 50%);
+        height: min(128px, auto);
+        border-radius: 100%;
+    }
+
+    .controlBar {
+        border-right: 2px solid black;
+        height: 100vh;
+    }
+    
+    .verticalGroup {
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
+    }
+
     .messageBar {
-        width: 100vw;
-        max-width: 100vw;
+        width: 100%;
+        max-width: 100%;
         height: 10%;
         background-color: var(--conifer-color-dark);
         justify-content: left;

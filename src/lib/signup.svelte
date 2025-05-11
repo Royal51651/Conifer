@@ -12,6 +12,8 @@ let username = $state("");
 let email = $state("");
 let password = $state("");
 let message = $state("Signup for");
+let file = $state(null);
+let pfp_message = $state("Select Profile Picture");
 
 const randomColor = () => {
     let color = "";
@@ -23,13 +25,15 @@ const randomColor = () => {
 
 async function signUp() {
     try {
-        if(passwordConfirm == password && email != "" && username != "" && /^\S*$/.test(password) && password.length >= 4){
+        if(passwordConfirm == password && email != "" && username != "" && /^\S*$/.test(password) && password.length >= 8 && file != null){
             let color = randomColor();
+            console.log(file);
             const data = {
                 "email": email,
                 "emailVisibility": true,
                 "username": username,
                 "color": color,
+                "avatar": file,
                 "password": password,
                 "passwordConfirm": passwordConfirm
             };
@@ -46,6 +50,8 @@ async function signUp() {
             announce_message("Password must be 8 characters or longer with no whitespace");
         } else if (password != passwordConfirm) {
             announce_message("Passwords do not match");
+        } else if (file == null) {
+            announce_message("Choose a profile picture");
         } else {
             announce_message("Sign-up Failed. Try again");
         }
@@ -60,6 +66,13 @@ async function signUp() {
         }
     }
 }
+
+const handleFileChange = (e) => { 
+    file = e.target.files[0]; 
+    pfp_message = file.name;
+
+};
+
 </script>
 
 <Announcer />
@@ -114,6 +127,31 @@ async function signUp() {
         placeholder="Confirm Password"
         bind:value={passwordConfirm}
     />
+
+    <input 
+        style="display: none" 
+        type="file" 
+        onchange={handleFileChange} 
+        accept="image/*" 
+        id="uploadButton"
+    />
+    {#if pfp_message == "Select Profile Picture"}
+        <label
+            class="divWrapper fileUploader" 
+            for='uploadButton'
+        >
+            {pfp_message}
+        </label>
+    {:else}
+        <label
+            class="divWrapper fileUploader" 
+            for='uploadButton'
+            style="color: white;"
+        >
+            {pfp_message}
+        </label>
+    {/if}
+
     <button onclick={signUp}>Submit</button>
     {/if}
 
@@ -128,6 +166,16 @@ async function signUp() {
         justify-content: center;
         align-items: center;
         box-sizing: border-box;
+    }
+
+    .fileUploader {
+        text-align: left;
+        color: var(--conifer-color);
+        cursor: pointer;
+    }
+
+    .fileUploader:hover {
+        border-color: #dcdcdc;
     }
 
     .header {

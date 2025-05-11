@@ -56,6 +56,14 @@ input[type=text], input[type=password] {
     color: white;
 }
 
+input::placeholder {
+    color: var(--conifer-color);
+}
+
+input:focus::placeholder {
+    color: var(--conifer-color-dark);
+}
+
 img {
     width: min(15vh, 15vw);
 }

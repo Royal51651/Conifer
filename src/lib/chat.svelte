@@ -18,7 +18,6 @@
 
     async function send(){;
         if(message != "" && length >= 0){
-            console.log(pocket.pocket.authStore.record.id);
             const data = {
                 "Body": message,
                 "Poster": pocket.pocket.authStore.record.id
@@ -58,7 +57,7 @@
         // in addition, new messages will spawn a spacer above
         try {
             for(let i of temp){
-                if(i.expand.username == last_username){
+                if(i.expand.Poster.username == last_username){
                     let data = {
                         "new": false,
                         "body": i,
@@ -70,11 +69,11 @@
                         "body": i,
                     }
                     messages.unshift(data);
-                    last_username = i.expand.username;
+                    last_username = i.expand.Poster.username;
                 }
             }
             messages.reverse();
-            last_username = messages[0].body.expand.username;
+            last_username = messages[0].body.expand.Poster.username;
         } catch {
             console.log("No messages")
         }
@@ -84,8 +83,6 @@
             .subscribe("*", async ({ action, record }) => {
     
                 if(action === "create"){
-                    // do this because the subscription doesnt automatically expand records (lame)
-                    console.log(record);
                     if(record.Username == last_username){
                         let data = {
                             "new": true,

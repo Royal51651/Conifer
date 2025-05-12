@@ -3,14 +3,13 @@
 import pocket from './pocketbase.svelte';
 import { announce_message, ip } from "./store.svelte";
 import IpControlBar from './reusable/ip-control-bar.svelte';
-
 import Announcer from './reusable/announcer.svelte';
 import { ClientResponseError } from 'pocketbase';
 import { push } from 'svelte-spa-router';
 
 
-let email = $state("g@g.com");
-let password = $state("12345678");
+let email = $state("");
+let password = $state("");
 
 async function authenticate() {
     if(email != "" && password != ""){
@@ -39,7 +38,6 @@ async function authenticate() {
     }
     
 }
-
 </script>
 
 

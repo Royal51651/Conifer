@@ -16,6 +16,7 @@
         } else {
             ip_list += ip.ip + ":" + ip.port + ",";
             setCookie('saved', ip_list);
+            setCookie("lastUsed", ip.ip + ":" + ip.port);
             ip_list = getCookie("saved");
             msg = "Address saved!";
             setTimeout(() => {

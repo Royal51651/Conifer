@@ -23,10 +23,24 @@ const randomColor = () => {
     return color;
 }
 
+const parseColor = (input) => {
+    let output = "rgb(";
+    let count = 0;
+    for(let i = 0; i < input.length; i++){
+        if(input[i] == ","){
+            count += 1; 
+        }
+        if(count != 3){
+            output += input[i];
+        }
+    }
+    return output + ");";
+}
+
 async function signUp() {
     try {
         if(passwordConfirm == password && email != "" && username != "" && /^\S*$/.test(password) && password.length >= 8 && file != null){
-            let color = randomColor();
+            let color = parseColor(randomColor());
             console.log(file);
             const data = {
                 "email": email,

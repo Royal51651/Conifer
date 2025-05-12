@@ -16,30 +16,12 @@
 
     let messages = $state([]);
 
-    const parseColor = (input) => {
-        let output = "rgb(";
-        let count = 0;
-        for(let i = 0; i < input.length; i++){
-            if(input[i] == ","){
-                count += 1; 
-            }
-            if(count != 3){
-                output += input[i];
-            }
-        }
-        return output + ");";
-    }
-
     async function send(){;
         if(message != "" && length >= 0){
-            const user = await pocket.pocket.collection('users').getOne(pocket.pocket.authStore.record.id, {
-                expand: 'username,color',
-            });
-            let messageColor = parseColor(user.color);
+            console.log(pocket.pocket.authStore.record.id);
             const data = {
                 "Body": message,
-                "Username": user.username,
-                "Color": messageColor
+                "Poster": pocket.pocket.authStore.record.id
             };
             const response = await pocket.pocket.collection('messages').create(data);
             if(response){
@@ -50,16 +32,22 @@
         }
     }
 
-    const get_user_avatar = () => {
-        const url = pocket.pocket.files.getURL(pocket.pocket.authStore.record, pocket.pocket.authStore.record.avatar, {'thumb':'128x128'});
-        return url
+    const get_avatar = (record) => {
+        try {
+            const url = pocket.pocket.files.getURL(record, record.avatar, {'thumb':'128x128'});
+            return url
+        } catch {
+            console.log("Error in get avatar. Most likely from a failure to load the image");
+        }
+
     }
 
     // subscribe to the thingy so it works better
     let unsubscribe: () => void;
     onMount(async () => {
-        user_avatar = get_user_avatar();
+        user_avatar = get_avatar(pocket.pocket.authStore.record);
         const response = await pocket.pocket.collection("messages").getList(1, 25, {
+            expand: "Poster",
             sort: '-created',
         });
         let temp = response.items;
@@ -70,7 +58,7 @@
         // in addition, new messages will spawn a spacer above
         try {
             for(let i of temp){
-                if(i.Username == last_username){
+                if(i.expand.username == last_username){
                     let data = {
                         "new": false,
                         "body": i,
@@ -82,11 +70,11 @@
                         "body": i,
                     }
                     messages.unshift(data);
-                    last_username = i.Username;
+                    last_username = i.expand.username;
                 }
             }
             messages.reverse();
-            last_username = messages[0].body.Username;
+            last_username = messages[0].body.expand.username;
         } catch {
             console.log("No messages")
         }
@@ -95,7 +83,10 @@
             .collection('messages')
             .subscribe("*", async ({ action, record }) => {
                 if(action === "create"){
-                    console.log(get_user_avatar());
+                    // do this because the subscription doesnt automatically expand records (lame)
+                    record = await pocket.pocket.collection('messages').getOne(record.id, {
+                        expand: "Poster",
+                    })
                     if(record.Username == last_username){
                         let data = {
                             "new": true,
@@ -141,7 +132,7 @@
     <div class="verticalGroup controlBar" style="width: 20%;">
 
         <div class="userDisplay">
-            <img src="{user_avatar}" alt="Avatar">
+            <img class="avatar" src="{user_avatar}" alt="Avatar">
         </div>
 
 
@@ -175,11 +166,11 @@
         <div class="messageContainer">
 
             {#each messages as message}
-
                 {#if message.new}
                     <div class="message">
-                        <span>
-                            <p1 class="username" style="color: {message.body.Color}">{message.body.Username}</p1>
+                        <span class="messageSpan">
+                            <img src="{get_avatar(message.body.expand.Poster)}" class="messageAvatar" alt="User Avatar">
+                            <p1 class="username" style="color: {message.body.expand.Poster.color}">{message.body.expand.Poster.username}</p1>
                             <p1 class="subText">{message.body.created.split(".")[0]}</p1>
                         </span>
                     </div>
@@ -214,6 +205,11 @@
         height: 100%;
     }
 
+    .messageSpan {
+        justify-content: left;
+        align-items: center;
+    }
+
     .userDisplay {
         padding: 1em;
         box-sizing: border-box;
@@ -226,9 +222,15 @@
         font-size: min(2vw, 2vh);
     }
 
-    .userDisplay img {
+    .avatar {
         width: min(128px, 50%);
         height: min(128px, auto);
+        border-radius: 100%;
+    }
+
+    .messageAvatar {
+        width: min(64px, 50%);
+        height: auto;
         border-radius: 100%;
     }
 

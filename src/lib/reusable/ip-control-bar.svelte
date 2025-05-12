@@ -14,11 +14,11 @@
 </span>
 
 <style>
+
     span {
         display: flex;
         flex-direction: row;
         box-sizing: border-box;
-        justify-content: space-between;
         width: 100%;
         gap: 10px;
     }

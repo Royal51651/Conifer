@@ -9,8 +9,8 @@ import { ClientResponseError } from 'pocketbase';
 import { push } from 'svelte-spa-router';
 
 
-let email = $state("");
-let password = $state("");
+let email = $state("g@g.com");
+let password = $state("12345678");
 
 async function authenticate() {
     if(email != "" && password != ""){
@@ -24,7 +24,6 @@ async function authenticate() {
             } else {
                 announce_message("Invalid login credentials");
             }
-
         } catch (err) {
             console.log(err);
             if(err instanceof ClientResponseError){

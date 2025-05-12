@@ -82,11 +82,10 @@
         unsubscribe = await pocket.pocket
             .collection('messages')
             .subscribe("*", async ({ action, record }) => {
+    
                 if(action === "create"){
                     // do this because the subscription doesnt automatically expand records (lame)
-                    record = await pocket.pocket.collection('messages').getOne(record.id, {
-                        expand: "Poster",
-                    })
+                    console.log(record);
                     if(record.Username == last_username){
                         let data = {
                             "new": true,
@@ -114,7 +113,7 @@
                         index++;
                     }
                 }
-            });
+            }, {expand: "Poster"});
     });
 
     onDestroy(() => {

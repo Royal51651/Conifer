@@ -341,6 +341,11 @@
     .tags {
         width: 100%;
         padding: 10px;
+        display: flex;
+        flex-direction: row;
+        box-sizing: border-box;
+        flex-wrap: wrap;
+        height: auto;
     }
 
     .tag {
@@ -348,6 +353,8 @@
         box-sizing: border-box;
         border-radius: 10px;
         padding: 10px;
+        align-items: center;
+        text-wrap: nowrap;
     }
 
     .subText {

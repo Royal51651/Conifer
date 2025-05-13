@@ -5,30 +5,42 @@
     import Announcer from './reusable/announcer.svelte';
     import { push, replace } from 'svelte-spa-router';
 
-    let message = $state("")
-    let length = $derived(200 - message.length);
+    let post = $state("")
     let user_avatar = $state("");
-
+    let tags = $state("");
+    let visibility = $state("hidden");
     async function logout(){
         pocket.pocket.authStore.clear();
         push('/');
     }
 
-    let messages = $state([]);
+    let posts = $state([]);
 
-    async function send(){;
-        if(message != "" && length >= 0){
+    async function sendPost(){;
+        if(post != ""){
             const data = {
-                "Body": message,
+                "Body": post,
+                "Tags": tags,
                 "Poster": pocket.pocket.authStore.record.id
             };
-            const response = await pocket.pocket.collection('messages').create(data);
+            const response = await pocket.pocket.collection('posts').create(data);
             if(response){
-                message = "";
+                post = "";
+                tags = "";
+                toggle_post();
             }
-        } else if (length < 0){
-            announce_message("Maximum message size is 200 characters")
         }
+    }
+
+    const parse_tags = (/** @type {string} */ input) => {
+        let output = [];
+        for(let i of input.split(" ")){
+            if(i != ""){
+                output.push(i);
+            }
+           
+        }
+        return output;
     }
 
     const get_avatar = (record) => {
@@ -45,70 +57,18 @@
     let unsubscribe: () => void;
     onMount(async () => {
         user_avatar = get_avatar(pocket.pocket.authStore.record);
-        const response = await pocket.pocket.collection("messages").getList(1, 25, {
+        const response = await pocket.pocket.collection("posts").getList(1, 25, {
             expand: "Poster",
             sort: '-created',
         });
-        let temp = response.items;
-        messages = [];
-        let last_username = "";
-        // this parses the 25 most recent messages and groups based on user
-        // consecutive messages by the same user get the new: false attribute
-        // in addition, new messages will spawn a spacer above
-        try {
-            for(let i of temp){
-                if(i.expand.Poster.username == last_username){
-                    let data = {
-                        "new": false,
-                        "body": i,
-                    }
-                    messages.unshift(data);
-                } else {
-                    let data = {
-                        "new": true,
-                        "body": i,
-                    }
-                    messages.unshift(data);
-                    last_username = i.expand.Poster.username;
-                }
-            }
-            messages.reverse();
-            last_username = messages[0].body.expand.Poster.username;
-        } catch {
-            console.log("No messages")
-        }
-
+        posts = response.items;
         unsubscribe = await pocket.pocket
-            .collection('messages')
+            .collection('posts')
             .subscribe("*", async ({ action, record }) => {
-    
+                console.log("Post created")
+                // just append posts for now until an actual recomendation function is worked out
                 if(action === "create"){
-                    if(record.Username == last_username){
-                        let data = {
-                            "new": true,
-                            "body": record
-                        }
-                        messages.unshift(data);
-                        messages[1].new = false;
-                    } else {
-                        let data = {
-                            "new": true,
-                            "body": record
-                        }
-                        messages.unshift(data);
-                        last_username = record.Username;
-                    }
-                } else if (action === "delete") {
-                    let index = 0;
-                    for(let i of messages){
-                        if(i.data == record){
-                            if(messages[i].new){
-                                messages[i + 1].new = true;
-                            }
-                            messages.splice(i, 1);
-                        }
-                        index++;
-                    }
+                    posts.unshift(record);
                 }
             }, {expand: "Poster"});
     });
@@ -117,10 +77,54 @@
         unsubscribe?.();
     });
 
+    const make_post = () => {
+        post = "";
+        tags = "";
+        toggle_post();
+    }
+
+    const toggle_post = () => {
+        if(visibility == ""){
+            visibility = "hidden";
+        } else {
+            visibility = "";        
+        }
+    }
+
 
 </script>
 
 <Announcer />
+<div class="blocker {visibility}"></div>
+
+<div class="announcer {visibility}">
+    <textarea 
+        placeholder="Post"
+        style="
+            height: 70%;
+            width: 100%;
+        "
+        bind:value={post}
+    >
+    </textarea>
+
+    
+    <textarea 
+        placeholder="Tags. Seperate with spaces"
+        style="
+            height: 20%;
+            width: 100%;
+        "
+        bind:value={tags}
+    >
+    </textarea>
+
+    <span>
+        <button style="width: 10%;" onclick={toggle_post}>X</button>
+        <button style="width: 90%;" onclick={sendPost}>Post</button>
+    </span>
+    
+</div>
 
 <div class="container">
     <!-- sidebar -->
@@ -132,47 +136,32 @@
         <button onclick={() => push("/chat")}>Message Board</button>
         <button onclick={() => push("/posts")}>Main Feed</button>
 
-
     </div>
 
     <div class="verticalGroup" style="width: 90%;">
-        <div class="messageBar">
-            <input
-                onkeydown={(e) => e.key === "Enter" && send()}
-                type="text"
-                placeholder="Message"
-                bind:value={message}
-            >
-            {#if length > 15}
-            <span>
-                <p1>{length}</p1>
-            </span>
-            {:else if length >= 0}
-            <span>
-                <p1 class="warning">{length}</p1>
-            </span>
-            {:else}
-            <span>
-                <p1 class="error">{length}</p1>
-            </span>
-            {/if}
+
+        <!-- Replace this postBar with an actual wizard to make new posts -->
+        <div class="postBar">
+           <button onclick={make_post}>New Post</button>
         </div>
 
-        <div class="messageContainer">
+        <div class="postContainer">
 
-            {#each messages as message}
-                {#if message.new}
-                    <div class="message">
-                        <span class="messageSpan">
-                            <img src="{get_avatar(message.body.expand.Poster)}" class="avatar" alt="User Avatar">
-                            <p1 class="username" style="color: {message.body.expand.Poster.color}">{message.body.expand.Poster.username}</p1>
-                            <p1 class="subText">{message.body.created.split(".")[0]}</p1>
+            {#each posts as post (post.id)}
+                <div class="post">
+                    <span class="postSpan">
+                        <img src="{get_avatar(post.expand.Poster)}" class="avatar" alt="User Avatar">
+                        <p1 class="username" style="color: {post.expand.Poster.color}">{post.expand.Poster.username}</p1>
+                        <p1 class="subText">{post.created.split(".")[0]}</p1>
+                    </span>
+                    <p1 class="postBody">{post.Body}</p1>
+                    {#if post.Tags != ""}
+                        <span class="tags">
+                            {#each parse_tags(post.Tags) as tag}
+                                <span class="tag">{tag}</span>
+                            {/each}
                         </span>
-                    </div>
-
-                {/if}
-                <div class="message">
-                    <p1 class="messageBody">{message.body.Body}</p1>
+                    {/if}
                 </div>
                 
             {/each}
@@ -189,6 +178,57 @@
 
 <style>
 
+    .announcer {
+        position: fixed;
+        top: 10vh;
+        left: 10vw;
+        width: 80vw;
+        height: 80vh;
+        background-color: var(--conifer-color-dark);
+        color: #fff;
+        font-size: min(2vh, 2vw);
+        z-index: 100;
+        border-radius: 5px;
+        padding: 1em;
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
+        gap: 10px;
+    }
+
+    .announcer button {
+        font-size: min(2vh, 2vw);
+        height: 100%;
+        box-sizing: border-box;
+    }
+
+    .announcer span {
+        box-sizing: border-box;
+        width: 100%;
+    }
+
+    .blocker {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 100vw;
+        background-color: rgba(0, 0, 0, 0.75);
+        justify-content: center;
+        align-items: center;
+        z-index: 50;
+    }
+
+    .announcer span{
+        padding: 20px;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .hidden {
+        visibility: hidden;
+    }
+
     :root {
         background-color: var(--grey-color-main);
     }
@@ -200,7 +240,7 @@
         height: 100%;
     }
 
-    .messageSpan {
+    .postSpan {
         justify-content: left;
         align-items: center;
     }
@@ -236,7 +276,7 @@
         box-sizing: border-box;
     }
 
-    .messageBar {
+    .postBar {
         width: 100%;
         max-width: 100%;
         height: 10%;
@@ -252,11 +292,7 @@
         gap: 10px;
     }
 
-    .messageBar input {
-        width: 95%;
-    }
-
-    .messageBar span {
+    .postBar span {
         border-radius: 8px;
         border: 1px solid transparent;
         padding: 0.5em;
@@ -268,29 +304,32 @@
         align-items: center;
     }
 
-    .messageBar:placeholder {
-        color: var(--fira-color);
+    .postBar:placeholder {
+        color: #d1d1d1;
     }
 
-    .messageContainer {
+    .postContainer {
         width: 100%;
+        box-sizing: border-box;
+        padding: 2em;
         height: 100%;
-        align-items: left;
+        align-items: center;
         display: flex;
         flex-direction: column;
-        gap: 5px;
+        gap: 30px;
     }
 
-    .message {
-        width: 90%;
-        max-width: 90%;
+    .post {
+        width: 80%;
+        max-width: 80%;
+        min-width: 80%;
+        border: 2px solid var(--conifer-color);
+        border-radius: 5px;
         display: flex;
         width: max-content;
         flex-direction: column;
         align-items: left;
-        padding-left: 1em;
-        padding-right: 1em;
-        padding-top: .2em;
+        padding: 1em;
         font-weight: 500;
         font-family: inherit;
         text-align: left;
@@ -299,12 +338,24 @@
         gap: 10px;
     }
 
+    .tags {
+        width: 100%;
+        padding: 10px;
+    }
+
+    .tag {
+        background-color: var(--conifer-color-dark);
+        box-sizing: border-box;
+        border-radius: 10px;
+        padding: 10px;
+    }
+
     .subText {
         text-wrap: pretty;
         float: left;
     }
 
-    .message::hover {
+    .post::hover {
         background-color: var(--conifer-color-dark);
     }
 
@@ -313,7 +364,7 @@
         font-weight: 500px;
     }
 
-    .messageBody {
+    .postBody {
         font-size: 20px;
     }
 
